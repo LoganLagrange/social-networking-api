@@ -3,13 +3,13 @@ const { Schema, model } = require("mongoose");
 const userSchema = new Schema(
     {
         username: {
-            Type: String,
+            type: String,
             required: true,
             unique: true,
             trim: true
         },
         email: {
-            Type: String,
+            type: String,
             required: true,
             unique: true,
             match: /^([a-z0-9_.-]+)@([\da-z.-]+).([a-z.]{2,6})$/
