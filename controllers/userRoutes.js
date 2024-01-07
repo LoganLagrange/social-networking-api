@@ -75,5 +75,21 @@ router.post('/:userId/friends/:friendId', (req, res) => {
     })
 });
 
+router.delete('/:userId/friends/:friendId', (req, res) => {
+    User.findOneAndUpdate(
+        { _id: req.params.userId },
+        {$pull: {friends: req.params.friendId}}
+        ).then(dbUser => {
+        if (!dbUser) {
+            res.status(404).json({ msg: "No user with that ID" });
+        } else {
+            res.json({msg: `Friend removed!`})
+        }
+        
+    }).catch(err => {
+        res.status(500).json({ msg: "Server error!", err })
+    })
+});
+
 
 module.exports = router;
