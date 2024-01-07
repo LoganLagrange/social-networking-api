@@ -48,7 +48,7 @@ router.post("/", (req, res) => {
 router.put("/:id", (req, res) => {
     Thought.findOneAndUpdate(
         { _id: req.params.id },
-        { $pull: req.body.reactionId },
+        { $set: req.body},
         { new: true }
     ).then(updatedThought => {
         if (!updatedThought) {
