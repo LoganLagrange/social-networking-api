@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { Thought, User } = require("../models");
+const { Thought, User, Reaction } = require("../models");
 const mongoose = require("mongoose");
 
 router.get('/', (req, res) => {
@@ -24,7 +24,6 @@ router.get('/:id', (req, res) => {
 
 router.post("/", (req, res) => {
     const userId = new mongoose.Types.ObjectId(req.body.userId)
-    console.log(userId)
     Thought.create({
         thoughtText: req.body.thoughtText,
         username: req.body.username,
@@ -49,7 +48,7 @@ router.post("/", (req, res) => {
 router.put("/:id", (req, res) => {
     Thought.findOneAndUpdate(
         { _id: req.params.id },
-        { $set: req.body },
+        { $pull: req.body.reactionId },
         { new: true }
     ).then(updatedThought => {
         if (!updatedThought) {
@@ -66,6 +65,36 @@ router.delete("/:id", (req, res) => {
     Thought.findOneAndDelete({_id: req.params.id}).then(deletedThought => {
         res.json({msg: "Thought deleted!"})
     }).catch(err => {
+        res.status(500).json({ msg: "Server error!", err })
+    })
+})
+
+router.post("/:thoughtId/reactions", (req, res) => {
+    const newReaction = {
+        reactionBody: req.body.reactionBody,
+        username: req.body.username
+    }
+    Thought.findOneAndUpdate(
+        {_id: req.params.thoughtId},
+        {$addToSet: {reactions: newReaction}},
+        {new: true}
+    ).then(newReaction => {
+        res.json({msg: "Reaction added!"})
+    }).catch(err => {
+        console.error(err)
+        res.status(500).json({ msg: "Server error!", err })
+    })
+})
+
+router.delete("/:thoughtId/reactions", (req, res) => {
+    const reactionId = new mongoose.Types.ObjectId(req.body.reactionId)
+    Thought.findOneAndUpdate(
+        {_id: req.params.thoughtId},
+        {$pull: {reactions: {reactionId: reactionId}}}
+    ).then(newReaction => {
+        res.json({msg: "Reaction removed!"})
+    }).catch(err => {
+        console.error(err)
         res.status(500).json({ msg: "Server error!", err })
     })
 })
